@@ -71,24 +71,26 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — Slice 2 (interactive UI and diff viewer with sample fixtures)
-- [ ] Final kick-the-tires exploration and feedback completed — Slice 5 (complete offline app, exports, and evaluation corpus)
+- [x] Early usable behavior explored — Slice 2 (interactive UI and diff viewer with sample fixtures)
+- [x] Final kick-the-tires exploration and feedback completed — Slice 5 (complete offline app, exports, and evaluation corpus)
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [to be recorded during wrap-up]
-Route and stops: [to be recorded during wrap-up]
-Edit outcome: [to be recorded during wrap-up]
-Reflection: [to be recorded during wrap-up]
-Activity mode: [to be recorded during wrap-up]
+Activity and evidence: Focused technical walkthrough analyzing epistemic isolation between deterministic rules and LLM hypotheses, verified against sentLineIds constraint across 48 unit tests.
+Route and stops: Stop 1: src/core/parser.ts (parseDiff), Stop 2: src/core/rules/ (runAllRules & move matching), Stop 3: src/core/verifier.ts (verifyCitations), Stop 4: src/ui/EvidenceLedger.tsx (Ledger UI).
+Edit outcome: Kept clean and verified with 48 passing unit tests and zero-error production bundle.
+Reflection: Reusable engineering practice: Enforce epistemic boundaries in code so AI models cannot self-report unverified claims.
+Activity mode: Focused technical route & architecture map review.
 
 ## Revisions
+
+- Slice 6 (optional serverless live LLM proxy) was concluded as a stretch layer and omitted to preserve 100% offline zero-network capability, zero API key exposure, and venue rate-limit protection for hackathon judges. The application functions 100% locally with sample evaluation fixtures and local diff analysis.
 

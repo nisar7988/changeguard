@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChangeGuard — Application Architecture Map</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --surface: #151a21;
+      --surface-raised: #1c222b;
+      --border: #262d37;
+      --border-subtle: #30363d;
+      --text: #d7dde5;
+      --text-muted: #8b96a5;
+      --rule-accent: #5aa9e6;
+      --llm-accent: #d4a24c;
+      --radius: 6px;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: SFMono-Regular, Consolas, Menlo, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 32px 20px;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .badge-cg {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: var(--radius);
+      color: var(--rule-accent);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 24px; color: #fff; margin-bottom: 6px; }
+    p.lead { font-size: 14px; color: var(--text-muted); }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Diagram */
+    .flow-diagram {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 16px 0;
+      overflow-x: auto;
+    }
+    .diagram-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .diagram-box {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      color: var(--text);
+      flex: 1;
+    }
+    .diagram-box.rule { border-left: 3px solid var(--rule-accent); }
+    .diagram-box.llm { border-left: 3px solid var(--llm-accent); }
+    .diagram-arrow { color: var(--text-muted); font-size: 16px; }
+
+    /* Route Stops */
+    .stop-card {
+      border-left: 2px solid var(--border-subtle);
+      padding-left: 16px;
+      margin-bottom: 18px;
+    }
+    .stop-card:hover { border-left-color: var(--rule-accent); }
+    .stop-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--rule-accent);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .stop-title { font-size: 14px; font-weight: 600; color: #fff; }
+    .stop-file { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .stop-desc { font-size: 13px; color: var(--text); }
+
+    /* Reuse Practice */
+    .practice-box {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--llm-accent);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-top: 12px;
+    }
+    .practice-title { font-weight: 600; color: #fff; margin-bottom: 4px; }
+
+    /* Pointers Grid */
+    .pointers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pointer-item {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+    .pointer-goal { font-weight: 600; font-size: 13px; color: #fff; margin-bottom: 4px; }
+    .pointer-file { font-family: var(--font-mono); font-size: 11px; color: var(--rule-accent); }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge-cg">ChangeGuard Architecture Map</span>
+      <h1>How ChangeGuard Works</h1>
+      <p class="lead">A complete guide to the codebase, data flow, and epistemic verification engine.</p>
+    </header>
+
+    <!-- Overview -->
+    <section>
+      <h2>System Overview</h2>
+      <p>
+        ChangeGuard is an honest, offline-first regression reviewer for AI-generated JS/TS diffs.
+        Instead of blending facts and model guesses, it enforces an <strong>epistemic boundary</strong>:
+        deterministic rules verify facts directly in the diff, while LLM hypotheses are held to strict
+        client-side citation verification against <code>sentLineIds</code>.
+      </p>
+
+      <div class="flow-diagram">
+        <div class="diagram-step">
+          <div class="diagram-box">Raw Unified Diff (paste or fixture)</div>
+          <div class="diagram-arrow">➔</div>
+          <div class="diagram-box"><code>parser.ts</code> (assigns global IDs L0001...)</div>
+        </div>
+        <div class="diagram-step">
+          <div class="diagram-box rule"><code>rules/</code> (R1 deleted asserts, R2 empty catch, R3 skipped tests)</div>
+          <div class="diagram-arrow">➔</div>
+          <div class="diagram-box rule">Deterministic Findings (Solid Blue Border)</div>
+        </div>
+        <div class="diagram-step">
+          <div class="diagram-box llm"><code>verifier.ts</code> (checks citations against sentLineIds)</div>
+          <div class="diagram-arrow">➔</div>
+          <div class="diagram-box llm">Cited Hypotheses (Dashed Amber) OR Uncited Drawer</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Tour Route -->
+    <section>
+      <h2>Code Tour Route (4 Stops)</h2>
+
+      <div class="stop-card">
+        <div class="stop-num">Stop 1 · The Foundation</div>
+        <div class="stop-title">Unified Diff Parser & Global Line Indexer</div>
+        <div class="stop-file">src/core/parser.ts → parseDiff()</div>
+        <div class="stop-desc">
+          Parses hunks, normalizes <code>a/</code> and <code>b/</code> paths, truncates lines > 2,000 characters,
+          and assigns immutable global IDs (<code>L0001</code>, <code>L0002</code>...) that remain stable across all tiers.
+        </div>
+      </div>
+
+      <div class="stop-card">
+        <div class="stop-num">Stop 2 · Deterministic Facts Engine</div>
+        <div class="stop-title">The Three Code Hygiene Rules with Move Matching</div>
+        <div class="stop-file">src/core/rules/ → runAllRules(), evaluateRule1()</div>
+        <div class="stop-desc">
+          Scans for deleted test assertions, introduced empty error handlers, and skipped/focused tests.
+          Uses <code>move-matcher.ts</code> to match moved assertions 1-to-1 and downgrade them from <em>Higher</em> to <em>Lower</em> likelihood.
+        </div>
+      </div>
+
+      <div class="stop-card">
+        <div class="stop-num">Stop 3 · The Epistemic Gatekeeper</div>
+        <div class="stop-title">Dynamic Citation Verifier & Schema Validator</div>
+        <div class="stop-file">src/core/verifier.ts → verifyCitations() & src/core/schema.ts</div>
+        <div class="stop-desc">
+          Evaluates LLM findings against <code>sentLineIds</code>. Valid citations with at least one changed line
+          are marked <em>Cited</em>; hallucinations or out-of-diff lines are quarantined into the collapsed <em>Uncited</em> drawer.
+        </div>
+      </div>
+
+      <div class="stop-card">
+        <div class="stop-num">Stop 4 · Dual-Pane Interactive UI</div>
+        <div class="stop-title">Unified Diff Viewer & Evidence Ledger</div>
+        <div class="stop-file">src/ui/DiffViewer.tsx & src/ui/EvidenceLedger.tsx</div>
+        <div class="stop-desc">
+          Coordinates bi-directional line jumping, flashing highlights, source-colored gutter dots (steel-blue vs. amber),
+          and renders the honest empty state: <em>"No findings. This does not mean the diff is safe."</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- To Change This -->
+    <section>
+      <h2>To Change This, Start Here</h2>
+      <div class="pointers-grid">
+        <div class="pointer-item">
+          <div class="pointer-goal">Add a new deterministic rule</div>
+          <div class="pointer-file">src/core/rules/ & src/core/rules/index.ts</div>
+        </div>
+        <div class="pointer-item">
+          <div class="pointer-goal">Modify citation verification criteria</div>
+          <div class="pointer-file">src/core/verifier.ts</div>
+        </div>
+        <div class="pointer-item">
+          <div class="pointer-goal">Update color tokens or typography</div>
+          <div class="pointer-file">src/index.css</div>
+        </div>
+        <div class="pointer-item">
+          <div class="pointer-goal">Adjust PR or Agent export formatters</div>
+          <div class="pointer-file">src/core/export/pr-report.ts</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Practice to Reuse -->
+    <section>
+      <h2>A Practice to Reuse on Future Projects</h2>
+      <div class="practice-box">
+        <div class="practice-title">Epistemic Separation of Model Output</div>
+        <p>
+          Never let an LLM self-report its own certainty or ground its own citations without mechanical verification.
+          By enforcing that citations must be line IDs checked against <code>sentLineIds</code> in code,
+          hallucinations are caught by construction before reaching developers.
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      ChangeGuard Proof of Concept · Verified locally with Vitest (48 tests passing) · Run via <code>npm run dev</code>
+    </footer>
+  </div>
+</body>
+</html>
