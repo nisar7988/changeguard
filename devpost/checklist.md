@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Open `http://localhost:5173`, click through all three sample fixtures, and click a cited line chip to confirm it jumps to and flashes the corresponding diff line.
   Commit: `feat: add web worker and interactive evidence ledger UI with sample fixtures`
 
-- [ ] **3. Client-side Citation Verifier and per-item schema validation**
+- [x] **3. Client-side Citation Verifier and per-item schema validation**
   Becomes usable: LLM findings in the sample fixtures run dynamically through the Citation Verifier client-side on every load; valid findings appear in `LLM hypotheses (cited)` with neutral badges, while invalid/unresolved citations are quarantined in the collapsed uncited drawer.
   Why now: Delivers the core thesis: LLM claims are verified against `sentLineIds` by construction, proving the Citation Verifier is authentic rather than pre-baked.
   PRD ref: `prd.md > Features and Behavior` (items 3 & 4)

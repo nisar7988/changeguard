@@ -35,6 +35,7 @@ export interface ResolvedSnippet {
   lineNo: number;
   text: string;
   resolved: boolean;
+  isSent?: boolean;
 }
 
 export interface Finding {

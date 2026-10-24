@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'preact/hooks';
-import type { ParsedDiff, Finding, FixtureData, ResolvedSnippet } from '../core/types';
+import type { ParsedDiff, Finding, FixtureData } from '../core/types';
 import { parseDiff } from '../core/parser';
 import { runAllRules } from '../core/rules';
+import { validateLLMResponse } from '../core/schema';
+import { verifyCitations } from '../core/verifier';
 import { LandingView } from './LandingView';
 import { WorkbenchView } from './WorkbenchView';
 import type { BannerInfo } from './EvidenceLedger';
@@ -88,59 +90,37 @@ export function App() {
         (parsed, ruleFindings) => {
           setParsedDiff(parsed);
 
-          // Resolve snippets for LLM findings
-          const llmFindings: Finding[] = (fixture.rawLLMResponse?.findings || []).map(
-            (raw, idx) => {
-              const citedIds = raw.cited_line_ids || [];
-              const resolvedSnippets: ResolvedSnippet[] = citedIds.map((id) => {
-                const line = parsed.lines.find((l) => l.id === id);
-                if (line) {
-                  return {
-                    lineId: id,
-                    file: line.file,
-                    lineNo: line.newLine ?? line.oldLine ?? 1,
-                    text: line.text,
-                    resolved: true,
-                  };
-                }
-                return {
-                  lineId: id,
-                  file: 'unknown',
-                  lineNo: 0,
-                  text: '[Not found in sent diff]',
-                  resolved: false,
-                };
-              });
+          // Validate LLM JSON schema per item
+          const validated = validateLLMResponse(fixture.rawLLMResponse);
 
-              // Check if all citations are present in sentLineIds
-              const allCitationsSent = citedIds.length > 0 && citedIds.every((id) =>
-                fixture.sentLineIds.includes(id)
-              );
-
-              const provenance =
-                fixture.provenanceMap && fixture.provenanceMap[idx]
-                  ? fixture.provenanceMap[idx]
-                  : undefined;
-
-              return {
-                id: `llm-${idx + 1}`,
-                source: 'LLM',
-                claim: raw.claim,
-                detection: allCitationsSent ? 'Cited' : 'Uncited',
-                likelihood: 'Uncertain',
-                citedLineIds: citedIds,
-                resolvedSnippets,
-                suggestedTest: raw.suggested_test,
-                blindSpots: raw.blind_spots,
-                provenance,
-              };
-            }
+          // Verify citations against sentLineIds and diff line models dynamically
+          const verifiedLLMFindings = verifyCitations(
+            validated.findings,
+            fixture.sentLineIds,
+            parsed.lines,
+            { provenanceMap: fixture.provenanceMap }
           );
 
-          setFindings([...ruleFindings, ...llmFindings]);
+          setFindings([...ruleFindings, ...verifiedLLMFindings]);
 
           // Banners
           const activeBanners: BannerInfo[] = [];
+
+          if (validated.rootError) {
+            activeBanners.push({
+              id: 'root-schema-error',
+              type: 'schema-drop',
+              message: `LLM analysis dropped: ${validated.rootError}`,
+            });
+          }
+
+          if (validated.droppedCount > 0) {
+            activeBanners.push({
+              id: 'schema-drop',
+              type: 'schema-drop',
+              message: `${validated.droppedCount} LLM finding(s) dropped due to invalid schema.`,
+            });
+          }
           if (parsed.lines.some((l) => l.isTruncated)) {
             activeBanners.push({
               id: 'truncated',

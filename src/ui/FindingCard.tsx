@@ -1,4 +1,5 @@
 import type { Finding } from '../core/types';
+import { Tooltip } from './Tooltip';
 
 interface FindingCardProps {
   finding: Finding;
@@ -36,6 +37,21 @@ export function FindingCard({ finding, onJumpToLine }: FindingCardProps) {
             [{finding.likelihood}]
           </span>
 
+          {/* Citation Verification Badge with Tooltip for LLM */}
+          {!isRule && (
+            <Tooltip
+              content={
+                finding.detection === 'Cited'
+                  ? 'All cited line IDs were sent to the LLM and include at least one added or removed line.'
+                  : 'Citation not verified: cited line was not present in the sent diff, or cites purely unchanged context lines.'
+              }
+            >
+              <span class="badge badge-detection" style={{ cursor: 'help' }}>
+                [{finding.detection === 'Cited' ? 'Citation verified' : 'Citation not verified'}] ℹ️
+              </span>
+            </Tooltip>
+          )}
+
           {/* Adversarial Provenance Badge */}
           {finding.provenance === 'real' && (
             <span class="badge badge-detection">[Real LLM output]</span>
@@ -56,17 +72,31 @@ export function FindingCard({ finding, onJumpToLine }: FindingCardProps) {
           {finding.citedLineIds.map((lineId) => {
             const snippet = finding.resolvedSnippets?.find((s) => s.lineId === lineId);
             const isUnresolved = snippet && !snippet.resolved;
+            const isUnsent = snippet && !snippet.isSent;
+
+            let statusLabel = '';
+            if (isUnresolved) {
+              statusLabel = ' (not found in diff)';
+            } else if (isUnsent) {
+              statusLabel = ' (not in sent diff)';
+            }
 
             return (
               <button
                 type="button"
                 key={lineId}
-                class={`citation-chip ${isUnresolved ? 'unresolved' : ''}`}
+                class={`citation-chip ${isUnresolved || isUnsent ? 'unresolved' : ''}`}
                 onClick={() => onJumpToLine(lineId)}
-                title={isUnresolved ? `${lineId} (not found in sent diff)` : `Jump to ${lineId} in diff`}
+                title={
+                  isUnresolved
+                    ? `${lineId} (not found in diff)`
+                    : isUnsent
+                    ? `${lineId} (not in sent diff)`
+                    : `Jump to ${lineId} in diff`
+                }
               >
                 {lineId}
-                {isUnresolved ? ' (not found)' : ''}
+                {statusLabel}
               </button>
             );
           })}
@@ -80,7 +110,10 @@ export function FindingCard({ finding, onJumpToLine }: FindingCardProps) {
             .filter((s) => s.resolved)
             .map((s) => (
               <div key={s.lineId}>
-                <strong>{s.file}:{s.lineNo}</strong> ({s.lineId})
+                <strong>
+                  {s.file}:{s.lineNo}
+                </strong>{' '}
+                ({s.lineId})
                 <div>{s.text}</div>
               </div>
             ))}
