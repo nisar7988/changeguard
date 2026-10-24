@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run `npx vitest run` in the terminal to see all tests passing, and inspect `src/core/parser.ts` to confirm how global line IDs are generated.
   Commit: `feat: scaffold project and implement core parser with rules 1-3 and tests`
 
-- [ ] **2. Web Worker and Evidence Ledger UI on cached fixtures**
+- [x] **2. Web Worker and Evidence Ledger UI on cached fixtures**
   Becomes usable: A running local web app (`http://localhost:5173`) with the two-pane GitHub-style diff viewer and Linear-style Evidence Ledger displaying deterministic findings from three pre-loaded sample fixtures.
   Why now: Establishes the visual surface, self-hosted typography, and bi-directional line-jumping early so the UI can be experienced and checked hands-on.
   PRD ref: `prd.md > Screens and Layout`, `prd.md > Look and Feel`

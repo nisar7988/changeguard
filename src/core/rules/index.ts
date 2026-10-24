@@ -10,7 +10,8 @@ export { evaluateRule3 } from './rule3-skipped';
 /**
  * Runs all three deterministic rules across parsed files.
  */
-export function runAllRules(files: DiffFile[]): Finding[] {
+export function runAllRules(input: DiffFile[] | { files: DiffFile[] }): Finding[] {
+  const files = Array.isArray(input) ? input : input.files;
   return [
     ...evaluateRule1(files),
     ...evaluateRule2(files),
