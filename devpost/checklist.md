@@ -49,7 +49,7 @@ Build mode: fast
   Learner check: Inspect a finding card with suggested test code to observe the `[Not visible in diff]` chips and the test safety warning tag.
   Commit: `feat: implement test safety scanner, identifier visibility, and blind-spot detection`
 
-- [ ] **5. Injection-safe dual export, pre-send secret scanning, and evaluation corpus**
+- [x] **5. Injection-safe dual export, pre-send secret scanning, and evaluation corpus**
   Becomes usable: The export modal generates sanitized GitHub PR comments and hardened agent verification prompts with character limits, while the input screen warns on detected secrets; the evaluation corpus is committed to document real tool accuracy.
   Why now: Finishes the end-to-end user loop and produces the required hackathon evaluation data before deployment.
   PRD ref: `prd.md > Features and Behavior` (items 7 & 8), `prd.md > Delivery & Success Criteria`

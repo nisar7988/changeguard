@@ -2,14 +2,15 @@ import { useState } from 'preact/hooks';
 import type { ParsedDiff, Finding } from '../core/types';
 import { DiffViewer } from './DiffViewer';
 import { EvidenceLedger, type BannerInfo } from './EvidenceLedger';
+import { ExportModal } from './ExportModal';
 
 interface WorkbenchViewProps {
   parsedDiff: ParsedDiff;
   findings: Finding[];
   banners: BannerInfo[];
   isCached: boolean;
+  isRulesOnly: boolean;
   onNewDiff: () => void;
-  onExport?: () => void;
 }
 
 export function WorkbenchView({
@@ -17,10 +18,11 @@ export function WorkbenchView({
   findings,
   banners,
   isCached,
+  isRulesOnly,
   onNewDiff,
-  onExport,
 }: WorkbenchViewProps) {
   const [highlightedLineId, setHighlightedLineId] = useState<string | null>(null);
+  const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
 
   const ruleFindingsCount = findings.filter((f) => f.source === 'Rule').length;
   const citedLLMCount = findings.filter(
@@ -50,11 +52,9 @@ export function WorkbenchView({
           <button type="button" onClick={onNewDiff}>
             ← New diff
           </button>
-          {onExport && (
-            <button type="button" onClick={onExport}>
-              Export
-            </button>
-          )}
+          <button type="button" class="primary-cta" style={{ padding: '4px 12px', fontSize: '13px' }} onClick={() => setIsExportOpen(true)}>
+            Export
+          </button>
         </div>
       </header>
 
@@ -92,6 +92,16 @@ export function WorkbenchView({
           onJumpToLine={handleJumpToLine}
         />
       </main>
+
+      {/* Export Dialog */}
+      <ExportModal
+        parsedDiff={parsedDiff}
+        findings={findings}
+        isCached={isCached}
+        isRulesOnly={isRulesOnly}
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+      />
     </div>
   );
 }

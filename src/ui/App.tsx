@@ -235,6 +235,7 @@ export function App() {
             findings={findings}
             banners={banners}
             isCached={isCached}
+            isRulesOnly={rulesOnly}
             onNewDiff={() => setView('landing')}
           />
         )
