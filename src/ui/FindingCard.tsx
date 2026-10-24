@@ -124,6 +124,29 @@ export function FindingCard({ finding, onJumpToLine }: FindingCardProps) {
       {finding.suggestedTest && (
         <div class="suggested-test-block">
           <div class="suggested-test-header">Suggested Verification Test</div>
+
+          {finding.testSafetyWarning && (
+            <div class="inline-warning-banner" style={{ margin: 0, padding: '6px 10px' }}>
+              ⚠️ <strong>[Warning: Suggested test references environment/network APIs]</strong>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                Absence of a warning does not guarantee test safety. Always read test code before running it.
+              </div>
+            </div>
+          )}
+
+          {finding.testIdentifiers && finding.testIdentifiers.some((t) => !t.visible) && (
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Identifiers outside diff:</span>
+              {finding.testIdentifiers
+                .filter((t) => !t.visible)
+                .map((t) => (
+                  <span key={t.name} class="badge badge-detection" title="Identifier not found in diff tokens">
+                    {t.name} [Not visible in diff]
+                  </span>
+                ))}
+            </div>
+          )}
+
           <pre class="test-code-pre">{finding.suggestedTest}</pre>
         </div>
       )}

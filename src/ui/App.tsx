@@ -4,6 +4,9 @@ import { parseDiff } from '../core/parser';
 import { runAllRules } from '../core/rules';
 import { validateLLMResponse } from '../core/schema';
 import { verifyCitations } from '../core/verifier';
+import { scanTestSafety } from '../core/safety-scan';
+import { extractDiffIdentifiers, checkTestIdentifiers } from '../core/identifiers';
+import { detectSignatureBlindSpots } from '../core/blind-spots';
 import { LandingView } from './LandingView';
 import { WorkbenchView } from './WorkbenchView';
 import type { BannerInfo } from './EvidenceLedger';
@@ -101,7 +104,27 @@ export function App() {
             { provenanceMap: fixture.provenanceMap }
           );
 
-          setFindings([...ruleFindings, ...verifiedLLMFindings]);
+          // Enrich LLM findings with test safety scanner, diff identifier tokens, and blind spots
+          const diffIdentifiers = extractDiffIdentifiers(parsed.lines);
+          const signatureBlindSpots = detectSignatureBlindSpots(parsed);
+
+          const enrichedLLMFindings = verifiedLLMFindings.map((f) => {
+            const safety = scanTestSafety(f.suggestedTest);
+            const testIdentifiers = checkTestIdentifiers(f.suggestedTest || '', diffIdentifiers);
+            const combinedBlindSpots = [
+              ...(f.blindSpots || []),
+              ...signatureBlindSpots,
+            ];
+
+            return {
+              ...f,
+              testSafetyWarning: safety.hasWarning,
+              testIdentifiers,
+              blindSpots: combinedBlindSpots.length > 0 ? combinedBlindSpots : undefined,
+            };
+          });
+
+          setFindings([...ruleFindings, ...enrichedLLMFindings]);
 
           // Banners
           const activeBanners: BannerInfo[] = [];

@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Open the Adversarial fixture in the browser and verify that the synthetic invalid line ID is flagged and placed into the collapsed "LLM claims without a valid citation" drawer.
   Commit: `feat: add client-side citation verifier and per-item schema validation`
 
-- [ ] **4. Test safety scanner, identifier visibility check, and blind-spot detection**
+- [x] **4. Test safety scanner, identifier visibility check, and blind-spot detection**
   Becomes usable: Finding cards show heuristic safety warnings on sensitive test code APIs, `[Not visible in diff]` chips on untested identifiers, and `[Computed: Callers not visible in diff]` chips on function signature changes.
   Why now: Completes the analytical depth of the tool, preventing dangerous test execution and highlighting repository-level blind spots before export.
   PRD ref: `prd.md > Features and Behavior` (items 5 & 6)
