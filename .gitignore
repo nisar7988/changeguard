@@ -5,3 +5,9 @@
 node_modules/
 dist/
 .DS_Store
+
+# Hackathon agent skill scaffolding
+.agents/
+.claude/
+agent/
+skills-lock.json
